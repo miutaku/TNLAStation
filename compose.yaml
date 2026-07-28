@@ -1,0 +1,184 @@
+name: tnlastation
+
+services:
+  postgres:
+    image: postgres:18-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tnlastation
+      POSTGRES_USER: tnlastation
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env に POSTGRES_PASSWORD を設定してください}
+      TZ: Asia/Tokyo
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tnlastation -d tnlastation"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  migrator:
+    build:
+      context: ../TNLAStation-backend
+      dockerfile: Dockerfile
+    image: tnlastation-backend:local
+    restart: "no"
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=tnlastation;Username=tnlastation;Password=${POSTGRES_PASSWORD:?.env に POSTGRES_PASSWORD を設定してください}
+      TZ: Asia/Tokyo
+    entrypoint: ["dotnet", "/app/migrator/TNLAStation.Migrator.dll"]
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  backend:
+    build:
+      context: ../TNLAStation-backend
+      dockerfile: Dockerfile
+    image: tnlastation-backend:local
+    restart: unless-stopped
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+      ffmpeg-worker:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      Server__Port: 8080
+      Server__ClientSocketioPort: ${TNLA_PORT:-8888}
+      Api__Servers__0: http://localhost:${TNLA_PORT:-8888}
+      EPGSTATION_CONFIG: /epgstation-config/config.yml
+      EPGSTATION_LOG_DIR: /var/lib/tnlastation/logs
+      FfmpegWorker__BaseUrl: http://ffmpeg-worker:8080
+      # パスワードを含むためここだけ環境変数のまま。postgres コンテナ自身も
+      # POSTGRES_PASSWORD を環境変数でしか受け取れない。
+      ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=tnlastation;Username=tnlastation;Password=${POSTGRES_PASSWORD:?.env に POSTGRES_PASSWORD を設定してください}
+      TZ: Asia/Tokyo
+    extra_hosts:
+      # EPG 同期と、変換無しのライブ視聴 (OpenLiveStreamAsync) はここから直接 Mirakurun を見る。
+      - host.docker.internal:host-gateway
+    volumes:
+      # HLS のプレイリスト・セグメント・サムネイルは ffmpeg-worker が書き、backend は
+      # 静的ファイルとして配るだけ。同じボリュームを両コンテナで共有する。
+      - app-data:/var/lib/tnlastation
+      - ${RECORDED_DIRECTORY:-recorded-data}:/recorded
+      # config.yml.template も同じディレクトリに置けば、上流同様streamの省略値補完に使われる。
+      - ./config:/epgstation-config:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8080/api/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  ffmpeg-worker:
+    build:
+      context: ../TNLAStation-backend
+      dockerfile: Dockerfile.ffmpeg-worker
+    image: tnlastation-ffmpeg-worker:local
+    restart: unless-stopped
+    init: true
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      EPGSTATION_CONFIG: /epgstation-config/config.yml
+      EPGSTATION_LOG_DIR: /var/lib/tnlastation/logs
+      TZ: Asia/Tokyo
+    extra_hosts:
+      # ライブ視聴・配信は ffmpeg-worker が自分で Mirakurun から取りに行く。
+      - host.docker.internal:host-gateway
+    volumes:
+      - app-data:/var/lib/tnlastation
+      - ${RECORDED_DIRECTORY:-recorded-data}:/recorded
+      - ./config:/epgstation-config:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  frontend:
+    build:
+      context: ../TNLAStation-frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_TNLA_API_BASE: /api
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_TNLA_API_BASE: /api
+      TZ: Asia/Tokyo
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3000/').then(r => {
+            if (!r.ok) process.exit(1)
+          }).catch(() => process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  gateway:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    ports:
+      - ${TNLA_PORT:-8888}:80
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/api/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+networks:
+  private:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  app-data:
+  recorded-data:

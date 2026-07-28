@@ -1,0 +1,24 @@
+name: 機能提案
+description: 新機能や改善を提案します
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい課題
+      description: 実装案ではなく、困っている状況を記載してください。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案
+      description: 希望する動作や代替案を記載してください。
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 補足
+      description: 参考資料、画面例、互換性への影響など

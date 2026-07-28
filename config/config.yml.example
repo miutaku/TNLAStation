@@ -1,0 +1,22 @@
+port: 8888
+clientSocketioPort: 8888
+mirakurunPath: http://host.docker.internal:40772/
+
+needToReplaceEnclosingCharacters: true
+epgUpdateIntervalTime: 10
+conflictPriority: 1
+recPriority: 2
+isEnabledDropCheck: true
+
+recordedFormat: '%TITLE%-%YEAR%年%MONTH%月%DAY%日%HOUR%時%MIN%分%SEC%秒'
+recordedFileExtension: .m2ts
+recorded:
+  - name: recorded
+    path: '%ROOT%/recorded'
+
+thumbnail: '%ROOT%/var/lib/tnlastation/thumbnail'
+thumbnailSize: 480x270
+thumbnailPosition: 10
+
+ffmpeg: /usr/bin/ffmpeg
+ffprobe: /usr/bin/ffprobe

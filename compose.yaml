@@ -73,6 +73,8 @@ services:
       - ${RECORDED_DIRECTORY:-recorded-data}:/recorded
       # config.yml.template も同じディレクトリに置けば、上流同様streamの省略値補完に使われる。
       - ./config:/epgstation-config:ro
+      # EPGStation の %ROOT%/config/... を使うコマンドとの互換パス。
+      - ./config:/config:ro
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8080/api/version"]
       interval: 10s
@@ -101,6 +103,7 @@ services:
       - app-data:/var/lib/tnlastation
       - ${RECORDED_DIRECTORY:-recorded-data}:/recorded
       - ./config:/epgstation-config:ro
+      - ./config:/config:ro
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8080/health"]
       interval: 10s

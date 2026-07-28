@@ -23,10 +23,7 @@ services:
       - private
 
   migrator:
-    build:
-      context: ../TNLAStation-backend
-      dockerfile: Dockerfile
-    image: tnlastation-backend:local
+    image: ghcr.io/miutaku/tnlastation-backend:latest
     restart: "no"
     init: true
     depends_on:
@@ -43,10 +40,7 @@ services:
       - private
 
   backend:
-    build:
-      context: ../TNLAStation-backend
-      dockerfile: Dockerfile
-    image: tnlastation-backend:local
+    image: ghcr.io/miutaku/tnlastation-backend:latest
     restart: unless-stopped
     init: true
     depends_on:
@@ -91,10 +85,7 @@ services:
       - private
 
   ffmpeg-worker:
-    build:
-      context: ../TNLAStation-backend
-      dockerfile: Dockerfile.ffmpeg-worker
-    image: tnlastation-ffmpeg-worker:local
+    image: ghcr.io/miutaku/tnlastation-ffmpeg-worker:latest
     restart: unless-stopped
     init: true
     environment:
@@ -122,11 +113,7 @@ services:
       - private
 
   frontend:
-    build:
-      context: ../TNLAStation-frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_TNLA_API_BASE: /api
+    image: ghcr.io/miutaku/tnlastation-frontend:latest
     restart: unless-stopped
     init: true
     environment:

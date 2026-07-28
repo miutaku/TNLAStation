@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: セキュリティ上の問題
+    url: https://github.com/miutaku/TNLAStation/security/advisories/new
+    about: 公開Issueにはせず、Securityタブから報告してください。

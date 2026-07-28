@@ -59,6 +59,8 @@ services:
       EPGSTATION_CONFIG: /epgstation-config/config.yml
       EPGSTATION_LOG_DIR: /var/lib/tnlastation/logs
       FfmpegWorker__BaseUrl: http://ffmpeg-worker:8080
+      Recording__DropLogDirectory: /var/lib/tnlastation/drop
+      Thumbnail__Directory: /var/lib/tnlastation/thumbnails
       # パスワードを含むためここだけ環境変数のまま。postgres コンテナ自身も
       # POSTGRES_PASSWORD を環境変数でしか受け取れない。
       ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=tnlastation;Username=tnlastation;Password=${POSTGRES_PASSWORD:?.env に POSTGRES_PASSWORD を設定してください}

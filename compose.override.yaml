@@ -1,0 +1,17 @@
+# ローカルビルドのイメージで動かすための上書き。
+# compose.yaml は ghcr のイメージを参照しており build セクションを持たないため、
+# 手元でビルドした tnlastation-*:local を使うにはこの上書きが要る。
+# ghcr の配布物を使う場合はこのファイルを消す。
+services:
+  migrator:
+    build:
+      context: ../TNLAStation-backend
+      dockerfile: Dockerfile
+  backend:
+    build:
+      context: ../TNLAStation-backend
+      dockerfile: Dockerfile
+  ffmpeg-worker:
+    build:
+      context: ../TNLAStation-ffmpeg-worker
+      dockerfile: Dockerfile.ffmpeg-worker

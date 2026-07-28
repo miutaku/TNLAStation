@@ -18,13 +18,9 @@ docker compose up -d
 http://localhost:8888 で開く。API は同一オリジンの `/api` にある。
 
 Compose は公開済みの GHCR イメージを取得するため、backend と frontend の
-リポジトリを別途cloneする必要はない。既定では検証済みの `1.0.0` を使用する。
-別バージョンを使う場合は `.env` の `TNLA_BACKEND_VERSION` と
-`TNLA_FRONTEND_VERSION` を変更する。
-
-既存のEPGStation `config.yml` も使用できる。Kubernetes内のService DNSなど、
-Composeホストから到達できない `mirakurunPath` は、LAN内IPまたは
-`host.docker.internal` を使ったURLへ変更する。
+リポジトリを別途cloneする必要はない。安定運用では `.env` の
+`TNLA_BACKEND_VERSION` と `TNLA_FRONTEND_VERSION` を `1.2.3` のような
+完全なバージョンへ固定する。`latest` は検証用途や最新版追従向け。
 
 更新前にはデータベースと録画設定をバックアップし、使用するバージョンを変更してから実行する。
 

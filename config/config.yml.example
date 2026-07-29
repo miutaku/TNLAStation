@@ -26,6 +26,17 @@ uploadTempDir: /var/lib/tnlastation/upload
 ffmpeg: /usr/bin/ffmpeg
 ffprobe: /usr/bin/ffprobe
 
+encodeProcessNum: 4
+concurrentEncodeNum: 1
+encode:
+  - name: H.264
+    cmd:
+      '%FFMPEG% -hide_banner -nostats -i %INPUT% -map 0:v:0 -map 0:a:0 -ignore_unknown -sn -dn
+      -c:v libx264 -preset veryfast -profile:v high -crf 23 -vf yadif
+      -c:a aac -ar 48000 -b:a 192k -ac 2 -movflags +faststart -y %OUTPUT%'
+    suffix: .mp4
+    rate: 4.0
+
 stream:
   live:
     ts:

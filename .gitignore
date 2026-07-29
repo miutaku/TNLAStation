@@ -1,3 +1,4 @@
 .env
 config/appsettings.Production.json
 config/config.yml
+.compose.override.yaml

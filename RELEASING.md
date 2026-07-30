@@ -5,8 +5,7 @@ TNLAStation はbackend系とfrontendを独立したSemVerで管理する。
 - backendの1バージョンから `tnlastation-backend` と
   `tnlastation-ffmpeg-worker` の同じタグを生成する
 - frontendは `tnlastation-frontend` として独立してリリースする
-- Composeでは `.env` の `TNLA_BACKEND_VERSION` と
-  `TNLA_FRONTEND_VERSION` を個別に固定する
+- Composeでは各サービスの `image` タグに完全なバージョンを直接指定する
 
 ## バージョンの決め方
 
@@ -37,7 +36,7 @@ git push origin v1.2.3
 4. 正式版のみ `latest` を更新する
 5. GitHub Releaseと自動生成リリースノートを作る
 
-公開後、Composeの `.env` を新しい完全バージョンへ更新して検証する。
-問題があれば `.env` を直前のバージョンへ戻し、再度
+公開後、`compose.yaml` の各 `image` タグを新しい完全バージョンへ更新して検証する。
+問題があればタグを直前のバージョンへ戻し、再度
 `docker compose pull && docker compose up -d` を実行する。公開済みタグは
 上書き・削除せず、新しいPATCHリリースで修正する。

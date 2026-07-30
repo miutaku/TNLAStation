@@ -18,9 +18,8 @@ docker compose up -d
 http://localhost:8888 で開く。API は同一オリジンの `/api` にある。
 
 Compose は公開済みの GHCR イメージを取得するため、backend と frontend の
-リポジトリを別途cloneする必要はない。安定運用では `.env` の
-`TNLA_BACKEND_VERSION` と `TNLA_FRONTEND_VERSION` を `1.2.3` のような
-完全なバージョンへ固定する。`latest` は検証用途や最新版追従向け。
+リポジトリを別途cloneする必要はない。使用するバージョンは `compose.yaml` の
+各 `image` に完全なバージョンとして固定する。
 
 更新前にはデータベースと録画設定をバックアップし、使用するバージョンを変更してから実行する。
 

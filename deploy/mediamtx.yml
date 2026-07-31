@@ -16,7 +16,7 @@ rtspAddress: :8554
 hls: yes
 hlsAddress: :8888
 hlsVariant: lowLatency
-# 部分セグメントの長さ。体感遅延に強く影響する。短いほど遅延は減るが、セグメント数が増えて負荷が増える。
+# 体感遅延に大きく影響する。短いほど遅延は減るが、プレイヤーが追いつけないと停止を繰り返す。
 hlsPartDuration: 500ms
 hlsSegmentDuration: 1s
 hlsSegmentCount: 7

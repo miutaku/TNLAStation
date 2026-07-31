@@ -10,7 +10,7 @@ EPGStation で使用していた次の YAML を、内容を変更せずこのデ
 
 `compose.yaml` は `config.yml` をバックエンドと ffmpeg worker の両方へ渡します。
 TNLAStation 固有のJSON設定ファイルは不要です。PostgreSQL接続情報やworkerの内部URLなど、
-EPGStationに存在しないコンテナ固有設定だけはComposeの環境変数で設定されます。
+EPGStation に存在しないコンテナ固有設定だけはComposeの環境変数で設定されます。
 
 Kubernetes ConfigMapから移行する場合は、`data.config.yml` を `config.yml` として保存します。
 ConfigMapのキーとして置いていたエンコードスクリプトは、コマンド中のパスに合わせて

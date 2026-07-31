@@ -75,7 +75,7 @@ services:
       # 静的ファイルとして配るだけ。同じボリュームを両コンテナで共有する。
       - app-data:/var/lib/tnlastation
       - ${RECORDED_DIRECTORY:-recorded-data}:/recorded
-      # config.yml.template も同じディレクトリに置けば、上流同様streamの省略値補完に使われる。
+      # config.yml.template も同じディレクトリに置けば、EPGStation 同様streamの省略値補完に使われる。
       - ./config:/epgstation-config:ro
       # EPGStation の %ROOT%/config/... を使うコマンドとの互換パス。
       - ./config:/config:ro
@@ -127,14 +127,7 @@ services:
     image: bluenviron/mediamtx:1.9.3
     restart: unless-stopped
     environment:
-      # ICE で advertisement する宛先。ここが空だと container の bridge IP を広告してしまい、
-      # ブラウザーから映像が届かない。
-      MEDIAMTX_WEBRTCADDITIONALHOSTS: ${TNLA_WEBRTC_HOST:-}
       TZ: Asia/Tokyo
-    ports:
-      # シグナリングは gateway が中継するので開けない。ICE だけを開ける。
-      - ${TNLA_WEBRTC_PORT:-8189}:8189/udp
-      - ${TNLA_WEBRTC_PORT:-8189}:8189/tcp
     volumes:
       - ./deploy/mediamtx.yml:/mediamtx.yml:ro
     security_opt:

@@ -61,6 +61,25 @@ services:
       FfmpegWorker__BaseUrl: http://ffmpeg-worker:8080
       # 低遅延ライブ (LL-HLS)。空なら選択肢に出さない。
       Streaming__LowLatencyHls__PlaylistUrlTemplate: /lowlatency/live/{streamId}/index.m3u8
+      # LL-HLS の画質。添字がそのまま mode になるので、並びを変えると既存の URL の意味が変わる。
+      # 1 つでも指定すると既定値は使われなくなるため、使う画質はすべて書く。
+      # 1080p は 720p のおよそ 2 倍の CPU を食う。同時視聴数はそのぶん減る。
+      Streaming__LiveModes__0__Name: 720p
+      Streaming__LiveModes__0__Height: "720"
+      Streaming__LiveModes__0__VideoBitrate: 3000k
+      Streaming__LiveModes__0__AudioBitrate: 192k
+      Streaming__LiveModes__1__Name: 480p
+      Streaming__LiveModes__1__Height: "480"
+      Streaming__LiveModes__1__VideoBitrate: 1500k
+      Streaming__LiveModes__1__AudioBitrate: 128k
+      Streaming__LiveModes__2__Name: 360p
+      Streaming__LiveModes__2__Height: "360"
+      Streaming__LiveModes__2__VideoBitrate: 700k
+      Streaming__LiveModes__2__AudioBitrate: 96k
+      Streaming__LiveModes__3__Name: 1080p
+      Streaming__LiveModes__3__Height: "1080"
+      Streaming__LiveModes__3__VideoBitrate: 6000k
+      Streaming__LiveModes__3__AudioBitrate: 192k
       Recording__DropLogDirectory: /var/lib/tnlastation/drop
       Thumbnail__Directory: /var/lib/tnlastation/thumbnails
       # パスワードを含むためここだけ環境変数のまま。postgres コンテナ自身も

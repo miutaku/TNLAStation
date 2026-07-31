@@ -1,0 +1,31 @@
+# 低遅延ライブ視聴 (LL-HLS) だけに使う。TS を publish するのは ffmpeg-worker で、
+# 視聴者は gateway 越しに MediaMTX の HLS を取る。使わないサーバーは開けない。
+logLevel: info
+api: no
+metrics: no
+pprof: no
+playback: no
+rtmp: no
+srt: no
+webrtc: no
+
+# ffmpeg-worker からの publish 受け口。private network の中だけで使う。
+rtsp: yes
+rtspAddress: :8554
+
+hls: yes
+hlsAddress: :8888
+hlsVariant: lowLatency
+# 部分セグメントの長さ。体感遅延に強く影響する。短いほど遅延は減るが、セグメント数が増えて負荷が増える。
+hlsPartDuration: 500ms
+hlsSegmentDuration: 1s
+hlsSegmentCount: 7
+# gateway が中継するので、ブラウザーからは同一オリジンに見える。
+hlsAllowOrigin: '*'
+# publish が来る前に叩かれても待たせない。無い間は 404 を返す。
+hlsAlwaysRemux: no
+
+paths:
+  # live/<streamId> で publish されたものだけを配る。
+  '~^live/.+$':
+    source: publisher

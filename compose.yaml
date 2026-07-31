@@ -59,6 +59,8 @@ services:
       EPGSTATION_CONFIG: /epgstation-config/config.yml
       EPGSTATION_LOG_DIR: /var/lib/tnlastation/logs
       FfmpegWorker__BaseUrl: http://ffmpeg-worker:8080
+      # 低遅延ライブ (LL-HLS)。空なら選択肢に出さない。
+      Streaming__LowLatencyHls__PlaylistUrlTemplate: /lowlatency/live/{streamId}/index.m3u8
       Recording__DropLogDirectory: /var/lib/tnlastation/drop
       Thumbnail__Directory: /var/lib/tnlastation/thumbnails
       # パスワードを含むためここだけ環境変数のまま。postgres コンテナ自身も
@@ -97,6 +99,10 @@ services:
       ASPNETCORE_HTTP_PORTS: 8080
       EPGSTATION_CONFIG: /epgstation-config/config.yml
       EPGSTATION_LOG_DIR: /var/lib/tnlastation/logs
+      # 低遅延ライブのとき、受信した TS をここへ publish する。
+      Ffmpeg__LowLatencyPublishUrlTemplate: rtsp://mediamtx:8554/live/{streamId}
+      # エンコードjobはbackendからHTTP転送せず、このWorkerが共有queueから取得する。
+      ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=tnlastation;Username=tnlastation;Password=${POSTGRES_PASSWORD:?.env に POSTGRES_PASSWORD を設定してください}
       TZ: Asia/Tokyo
     extra_hosts:
       # ライブ視聴・配信は ffmpeg-worker が自分で Mirakurun から取りに行く。
@@ -112,6 +118,25 @@ services:
       timeout: 5s
       retries: 12
       start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - private
+
+  mediamtx:
+    image: bluenviron/mediamtx:1.9.3
+    restart: unless-stopped
+    environment:
+      # ICE で advertisement する宛先。ここが空だと container の bridge IP を広告してしまい、
+      # ブラウザーから映像が届かない。
+      MEDIAMTX_WEBRTCADDITIONALHOSTS: ${TNLA_WEBRTC_HOST:-}
+      TZ: Asia/Tokyo
+    ports:
+      # シグナリングは gateway が中継するので開けない。ICE だけを開ける。
+      - ${TNLA_WEBRTC_PORT:-8189}:8189/udp
+      - ${TNLA_WEBRTC_PORT:-8189}:8189/tcp
+    volumes:
+      - ./deploy/mediamtx.yml:/mediamtx.yml:ro
     security_opt:
       - no-new-privileges:true
     networks:

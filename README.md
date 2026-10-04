@@ -6,6 +6,12 @@ EPGStation 互換の録画サーバー。バックエンドは .NET、フロン�
 - [TNLAStation-backend](https://github.com/miutaku/TNLAStation-backend)
 - [TNLAStation-frontend](https://github.com/miutaku/TNLAStation-frontend)
 
+## デモ
+
+https://miutaku.github.io/TNLAStation-frontend/
+
+サンプルデータを使って、バックエンドなしで主な画面と操作を試せます。
+
 ## 起動
 
 ```sh
